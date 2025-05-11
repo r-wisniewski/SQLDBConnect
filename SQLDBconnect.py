@@ -1,5 +1,4 @@
 import psycopg2, logging
-from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 logging.basicConfig(level=logging.INFO)
