@@ -120,3 +120,9 @@ def insert_into_table(cursor, table_name:str, columns:list, *args):
     column_str = ', '.join(columns)
     values = f"INSERT INTO {table_name} ({column_str}) VALUES ({placeholder})"
     cursor.execute(values, args)
+
+def check_for_table(cursor, table_name:str) -> bool:
+    """Checks if the specified table exists in the database."""
+    query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '{table_name}'"
+    cursor.execute(query)
+    return cursor.fetchone() is not None
