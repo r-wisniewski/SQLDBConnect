@@ -20,7 +20,7 @@ class SQLDBconnect:
         return self.connection, self.cursor
     
     #end of context manager
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self):
         close_connection(self.connection, self.cursor)
 
 #Create a new database
