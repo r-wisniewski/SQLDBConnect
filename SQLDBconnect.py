@@ -52,7 +52,11 @@ def connect(user:str,pwd:str,db:str,port:str="5432", host:str="127.0.0.1"):
         print(f"You are connected to - {record}")
     except (Exception, psycopg2.Error) as error :
         logging.error(f"Error while connecting to PostgreSQL {error}")
-    
+        logging.info("Attempting to create database")
+        create_db(db, user, pwd, port, host) #create the database
+        #connect to the database again using credentials
+        connection, cursor = connect(user, pwd, db, port, host)
+
     #return connection and cursor objects
     return connection, cursor
 
@@ -114,15 +118,17 @@ def close_connection(connection, cursor):
     else:
         return False
     
-def insert_into_table(cursor, table_name:str, columns:list, *args):
+def insert_into_table(connection, cursor, table_name:str, **kwargs):
     """Inserts data into the specified table."""
-    placeholder = ', '.join(['%s'] * len(args))
-    column_str = ', '.join(columns)
+    placeholder = ', '.join(['%s'] * len(kwargs))
+    column_str = ', '.join(kwargs.keys())
     values = f"INSERT INTO {table_name} ({column_str}) VALUES ({placeholder})"
-    cursor.execute(values, args)
+    cursor.execute(values, list(kwargs.values()))
+    connection.commit()
 
-def check_for_table(cursor, table_name:str) -> bool:
+def check_for_table(connection, cursor, table_name:str) -> bool:
     """Checks if the specified table exists in the database."""
     query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '{table_name}'"
     cursor.execute(query)
+    connection.commit()
     return cursor.fetchone() is not None
